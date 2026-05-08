@@ -25,3 +25,8 @@ mvn clean test
 - Extent Reports
 - CI/CD integration
 - - Contract validation
+
+Note:
+FakeStoreAPI behaves as a mock/demo API and does not persist created resources.
+POST, PUT, and DELETE endpoints simulate responses without actual database operations.
+Therefore, CRUD validations were focused on response assertions and contract validation rather than true persistence verification.
