@@ -5,6 +5,10 @@ import io.restassured.response.Response;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import pojo.CartRequest;
+import pojo.Product;
+
+import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
@@ -17,37 +21,39 @@ public class CartCRUDTest extends BaseTest {
 // Runtime-created IDs from POST response return null in subsequent GET requests.
     static int cartId = 2  ;
 
-    /*
-     CREATE CART
-     */
-
     @Test(priority = 1)
     public void createCartTest() {
 
-        String payload = """
-                {
-                  "userId": 456,
-                  "products": [
-                    {
-                      "id": 2,
-                      "title": "Bag",
-                      "price": 100
-                    }
-                  ]
-                }
-                """;
-        System.out.println(AuthTest.token);
+        Product product = new Product();
+//        String payload = """
+//                {
+//                  "userId": 456,
+//                  "products": [
+//                    {
+//                      "id": 2,
+//                      "title": "Bag",
+//                      "price": 100
+//                    }
+//                  ]
+//                }
+//                """;
+        product.setId(2);
+        product.setTitle("Bag");
+        product.setPrice(100);
+
+        CartRequest request = new CartRequest();
+
+        request.setUserId(456);
+        request.setProducts(List.of(product));
+
         Response response = given()
                 .header("Authorization", "Bearer " + AuthTest.token)
                 .contentType("application/json")
-                .body(payload)
+                .body(request)
 
                 .when()
                 .post("/carts");
 
-        // Print formatted response
-        System.out.println("Post Request Status Code: " + response.statusCode());
-        System.out.println("Post Request Response Body:");
         System.out.println(response.asPrettyString());
 
         response.then()
@@ -57,10 +63,6 @@ public class CartCRUDTest extends BaseTest {
         System.out.println("cartId:" + cartId);
         Assert.assertTrue(cartId > 0);
     }
-
-    /*
-     GET CREATED CART
-     */
 
     @Test(priority = 2)
     public void getCartTest() {
@@ -80,29 +82,33 @@ public class CartCRUDTest extends BaseTest {
         Assert.assertEquals(actualId, cartId);
     }
 
-    /*
-     UPDATE CART
-     */
-
     @Test(priority = 3)
     public void updateCartTest() {
 
-        String updatedPayload = """
-                {
-                  "userId": 2,
-                  "products": [
-                    {
-                      "id": 2,
-                      "title": "Phone",
-                      "price": 20000
-                    }
-                  ]
-                }
-                """;
+//        String updatedPayload = """
+//                {
+//                  "userId": 2,
+//                  "products": [
+//                    {
+//                      "id": 2,
+//                      "title": "Phone",
+//                      "price": 20000
+//                    }
+//                  ]
+//                }
+//                """;
+        Product product = new Product();
+        product.setId(2);
+        product.setTitle("Phone");
+        product.setPrice(2000);
+
+        CartRequest request = new CartRequest();
+        request.setUserId(2);
+        request.setProducts(List.of(product));
         Response response = given()
                 .log().all()
                 .contentType("application/json")
-                .body(updatedPayload)
+                .body(request)
                 .when()
                 .put("/carts/" + cartId);
 
@@ -111,10 +117,6 @@ public class CartCRUDTest extends BaseTest {
                 .statusCode(200)
                 .body("userId", equalTo(2));
     }
-
-    /*
-     DELETE CART
-     */
 
     @Test(priority = 4)
     public void deleteCartTest() {
